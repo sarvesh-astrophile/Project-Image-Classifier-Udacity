@@ -10,5 +10,6 @@ def get_input_args():
     parser.add_argument('--source_dir', dest='source_dir', default='flowers')
     parser.add_argument('--save', dest="checkpoint_path", default="checkpoint3.pth")
     parser.add_argument('--predict', dest='image_path', default='flowers/test/5/image_05159.jpg', help='Path of image to test')
-    
+    parser.add_argument('--top_k', dest='top_k',default='5', type=int)
+    parser.add_argument('--json_path', dest='json_path' , default='cat_to_name.json' , help='Path of json file')
     return parser.parse_args()

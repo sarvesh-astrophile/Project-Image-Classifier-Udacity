@@ -37,7 +37,7 @@ def image_process(image):
     
     return image_output
 
-def predict(path_image, path_checkpoint, arch_models, gpu, topk = 5):
+def predict(path_image, path_checkpoint, arch_models, gpu, topk, path_json):
     model, class_to_idx = checkpoint_load(path_checkpoint, arch_models)
     
     if gpu == 'gpu':
@@ -49,6 +49,9 @@ def predict(path_image, path_checkpoint, arch_models, gpu, topk = 5):
             print('Using CPU instead')
             device = 'cpu'
         model.to(device)
+        
+        with open(path_json, 'r') as f:
+            cat_to_name = json.load(f)
         
         with Image.open(path_image) as image:
             data_image_process = image_process(image)
@@ -67,10 +70,12 @@ def predict(path_image, path_checkpoint, arch_models, gpu, topk = 5):
             probs_rounded = [round(num, 4) for num in probs.tolist()[0]]
             class_to_idx_convert = {class_to_idx[i]: i for i in class_to_idx}
             classes = []
+            classes_name = []
             for label in labels.cpu().numpy()[0]:
                 classes.append(class_to_idx_convert[label])
+                classes_name.append(cat_to_name[class_to_idx_convert[label]])
                 
-            return probs_rounded, classes
+            return probs_rounded, classes, classes_name
 
 def checkpoint_load(path_checkpoint, arch_models):
     checkpoint = torch.load(path_checkpoint)
@@ -107,6 +112,8 @@ def main():
     gpu = args_input.gpu
     path_checkpoint = args_input.checkpoint_path
     path_img = args_input.image_path
+    top_k = args_input.top_k
+    path_json = args_input.json_path
     
     print("Inputs ===>")
     print('Arch:', arch_models)
@@ -114,21 +121,14 @@ def main():
     print('Checkpoint Path:', gpu)
     print('Image Path:', path_img)
     
-    with open('cat_to_name.json', 'r') as f:
-        cat_to_name = json.load(f)
         
-    probs_predict, classes_predict = predict(path_img, path_checkpoint, arch_models, gpu)
+    probs_predict, classes_predict , label_predict = predict(path_img, path_checkpoint, arch_models, gpu, top_k, path_json)
     
     print('The Prediction Results ==>')
     print('File selected: ', path_img)
-    print('Top 5 predicted flower classes:', classes_predict)
-    print('and their prebablities are', probs_predict)
-    
-    class_image_correct = path_img.split("/")[2]
-    
-    classes = []
-    for class_predict in classes_predict:
-        classes.append(cat_to_name[class_predict])
+    print('Top {} predicted flower classes:'.format(top_k), classes_predict)
+    print('and their prebablities are:', probs_predict)
+    print('and Class names are:', label_predict)
 
 
 if __name__ == '__main__':

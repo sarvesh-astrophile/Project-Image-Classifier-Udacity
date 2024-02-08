@@ -6,7 +6,7 @@ import time, json
 from get_input_args import get_input_args
 
 def train(hyperparameters):
-    [arch_models, epochs, rate_learning, units_hidden, gpu, dir_source, path_checkpoint] = hyperparameters
+    [arch_models, epochs, rate_learning, units_hidden, gpu, dir_source, path_checkpoint, path_json] = hyperparameters
     
     if arch_models == 'vgg16':
         model = models.vgg16()
@@ -16,7 +16,7 @@ def train(hyperparameters):
         model = models.alexnet()
         nodes_input = model.classifier[1].in_features
         
-    with open('cat_to_name.json', 'r') as catf:
+    with open(path_json, 'r') as catf:
         cat_to_name = json.load(catf)
         
     nodes_output = len(cat_to_name)
@@ -164,7 +164,8 @@ def main():
     gpu = input_args.gpu
     dir_source = input_args.source_dir
     path_checkpoint = input_args.checkpoint_path
-    hyperparameters = [arch_models, epochs, rate_learning, units_hidden, gpu, dir_source, path_checkpoint]
+    path_json = input_args.json_path
+    hyperparameters = [arch_models, epochs, rate_learning, units_hidden, gpu, dir_source, path_checkpoint, path_json]
     
     print('Inputs ====>')
     print('Pre trained model arch:', arch_models)
@@ -174,6 +175,7 @@ def main():
     print('GPU/CPU :', gpu)
     print('Directory Source :', dir_source)
     print('Path of Checkpoint:', path_checkpoint)
+    print('Path of Json:', path_json)
     
     train(hyperparameters)
     
