@@ -120,6 +120,7 @@ def main():
     print('using GPU/CPU', gpu)
     print('Checkpoint Path:', gpu)
     print('Image Path:', path_img)
+    print('Json Path:', path_json)
     
         
     probs_predict, classes_predict , label_predict = predict(path_img, path_checkpoint, arch_models, gpu, top_k, path_json)
